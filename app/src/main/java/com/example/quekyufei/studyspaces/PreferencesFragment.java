@@ -14,12 +14,13 @@ import android.widget.Filter;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PreferencesFragment extends Fragment {
 
     private FilterSpacesInterface activityInterface;
-    private List<CheckBox> checkBoxList = new ArrayList<CheckBox>();
+    private List<CheckBox> checkBoxList = new ArrayList<>();
 
     public boolean[] mcriteria = new boolean[5];
 
@@ -27,9 +28,10 @@ public class PreferencesFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         boolean[] savedCriteria = getArguments().getBooleanArray("filterCriteria");
-        for(int i = 0; i < 5; i++){
-            mcriteria[i] = savedCriteria[i];
-        }
+        if(savedCriteria != null)
+            System.arraycopy(savedCriteria,0,mcriteria,0,5);
+        else
+            Arrays.fill(mcriteria,false);
     }
 
     @Override
@@ -43,24 +45,16 @@ public class PreferencesFragment extends Fragment {
         checkBoxList.add(view.findViewById(R.id.foodCheckbox));
         checkBoxList.add(view.findViewById(R.id.discussionCheckbox));
 
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activityInterface.filtersDone();
-            }
-        });
+        doneButton.setOnClickListener((View v)-> activityInterface.filtersDone());
 
         for(int i = 0; i < 5; i++){
-            checkBoxList.get(i).setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v){
+            checkBoxList.get(i).setOnClickListener((View v)->{
                     mcriteria[0] = checkBoxList.get(0).isChecked();
                     mcriteria[1] = checkBoxList.get(1).isChecked();
                     mcriteria[2] = checkBoxList.get(2).isChecked();
                     mcriteria[3] = checkBoxList.get(3).isChecked();
                     mcriteria[4] = checkBoxList.get(4).isChecked();
                     activityInterface.filtersUpdated();
-                }
             });
 
             checkBoxList.get(i).setChecked(mcriteria[i]);
