@@ -1,7 +1,12 @@
 package com.example.quekyufei.studyspaces;
 
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.example.quekyufei.studyspaces.database.DatabaseFactory;
 import com.example.quekyufei.studyspaces.database.DatabaseInterface;
@@ -10,14 +15,23 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
 import java.util.function.Predicate;
 
-public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallback {
+public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallback, FilterSpacesInterface {
 
     private GoogleMap mMap;
+    private PreferencesFragment prefFragment;
+    private List<StudySpace> spaceList;
+
+    private Predicate<StudySpace> hasWifi = ss -> ss.isWifi();
+    private Predicate<StudySpace> hasAircon = ss -> ss.isAircon();
+    private Predicate<StudySpace> hasPower = ss -> ss.isPower();
+    private Predicate<StudySpace> hasFood = ss -> ss.isFood();
+    private Predicate<StudySpace> canDiscuss = ss -> ss.isDiscussion();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +41,54 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        Button preferencesButton = findViewById(R.id.preferencesButton);
+        preferencesButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                prefFragment = new PreferencesFragment();
+                FragmentTransaction fragTransac = getSupportFragmentManager().beginTransaction();
+                fragTransac.replace(R.id.preferencesFragmentContainer, prefFragment)
+                        .addToBackStack(null)
+                        .commit();
+
+                findViewById(R.id.transparentOverlay).setClickable(true);
+                Log.d("ViewMapActivity","map disabled");
+            }
+        });
     }
 
+    @Override
+    public void onBackPressed(){
+        if(findViewById(R.id.transparentOverlay).isClickable()){
+            findViewById(R.id.transparentOverlay).setClickable(false);
+        }
+        super.onBackPressed();
+    }
+
+    @Override
+    public void filtersUpdated(){
+        Predicate<StudySpace> criteria = ss -> true;
+        if(prefFragment.wifi) criteria = criteria.and(hasWifi);
+        if(prefFragment.aircon) criteria = criteria.and(hasAircon);
+        if(prefFragment.power) criteria = criteria.and(hasPower);
+        if(prefFragment.food) criteria = criteria.and(hasFood);
+        if(prefFragment.discussion) criteria = criteria.and(canDiscuss);
+
+        for(StudySpace ss : spaceList){
+            if(!criteria.test(ss)){
+                if(ss.getMapsMarker()!=null){
+                    ss.getMapsMarker().remove();
+                    ss.setMapsMarker(null);
+                }
+            }else{
+                if(ss.getMapsMarker()==null){
+                    LatLng position = new LatLng(ss.getLatitude(),ss.getLongitude());
+                    ss.setMapsMarker(mMap.addMarker(new MarkerOptions().position(position).title(ss.getName())));
+                }
+            }
+        }
+    }
 
     /**
      * Manipulates the map once available.
@@ -49,20 +109,12 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
 
         DatabaseInterface db = new DatabaseFactory().getDatabase("local");
 
-        List<StudySpace> spaceList = db.getStudySpaces(getApplicationContext());
+        spaceList = db.getStudySpaces(getApplicationContext());
         for(StudySpace space : spaceList){
+            Log.d("ViewMapActivity", "name: " + space.getName() + ", " + space.isAircon());
             LatLng position = new LatLng(space.getLatitude(),space.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(position).title(space.getName()));
+            Marker m = mMap.addMarker(new MarkerOptions().position(position).title(space.getName()));
+            space.setMapsMarker(m);
         }
-
-        Predicate<StudySpace> hasWifi = ss -> ss.isWifi();
-        Predicate<StudySpace> hasAircon = ss -> ss.isAircon();
-        Predicate<StudySpace> hasPower = ss -> ss.isPower();
-        Predicate<StudySpace> hasFood = ss -> ss.isFood();
-        Predicate<StudySpace> canDiscuss = ss -> ss.isDiscussion();
-
-        Predicate<StudySpace> criteria = ss -> true;
-
-
     }
 }
