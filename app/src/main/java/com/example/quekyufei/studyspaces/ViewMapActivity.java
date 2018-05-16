@@ -3,12 +3,17 @@ package com.example.quekyufei.studyspaces;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
+import com.example.quekyufei.studyspaces.database.DatabaseFactory;
+import com.example.quekyufei.studyspaces.database.DatabaseInterface;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.List;
+import java.util.function.Predicate;
 
 public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -38,9 +43,26 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng ntu = new LatLng(1.3483, 103.6831);
+        mMap.addMarker(new MarkerOptions().position(ntu).title("Marker at NTU"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ntu,(float)15.2));
+
+        DatabaseInterface db = new DatabaseFactory().getDatabase("local");
+
+        List<StudySpace> spaceList = db.getStudySpaces(getApplicationContext());
+        for(StudySpace space : spaceList){
+            LatLng position = new LatLng(space.getLatitude(),space.getLongitude());
+            mMap.addMarker(new MarkerOptions().position(position).title(space.getName()));
+        }
+
+        Predicate<StudySpace> hasWifi = ss -> ss.isWifi();
+        Predicate<StudySpace> hasAircon = ss -> ss.isAircon();
+        Predicate<StudySpace> hasPower = ss -> ss.isPower();
+        Predicate<StudySpace> hasFood = ss -> ss.isFood();
+        Predicate<StudySpace> canDiscuss = ss -> ss.isDiscussion();
+
+        Predicate<StudySpace> criteria = ss -> true;
+
+
     }
 }
