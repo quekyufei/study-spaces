@@ -10,7 +10,10 @@ import java.util.List;
 @Dao
 public interface StudySpacesDAO {
 
-    @Query("SELECT * FROM studyspace")
+    @Query("SELECT * FROM StudySpace")
     List<StudySpace> getAllSpaces();
+
+    @Query("SELECT * FROM StudySpace WHERE id = :id")
+    StudySpace getSpaceByID(int id);
 
 }

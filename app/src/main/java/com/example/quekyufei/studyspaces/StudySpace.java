@@ -23,6 +23,8 @@ public class StudySpace implements Serializable {
     private String power;
     private String food;
     private String discussion;
+    private String image;
+    private String about;
 
     @Ignore
     private Marker mapsMarker;
@@ -116,6 +118,10 @@ public class StudySpace implements Serializable {
         return discussion;
     }
 
+    public String getImage() { return image; }
+
+    public String getAbout() {return about; }
+
     public void setWifi(String wifi) {
         this.wifi = wifi;
     }
@@ -135,4 +141,9 @@ public class StudySpace implements Serializable {
     public void setDiscussion(String discussion) {
         this.discussion = discussion;
     }
+
+    public void setImage(String image) {this.image = image; }
+
+    public void setAbout(String about) {this.about = about; }
+
 }
