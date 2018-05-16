@@ -1,7 +1,12 @@
 package com.example.quekyufei.studyspaces;
 
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.example.quekyufei.studyspaces.database.DatabaseFactory;
 import com.example.quekyufei.studyspaces.database.DatabaseInterface;
@@ -27,9 +32,32 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        Button preferencesButton = findViewById(R.id.preferencesButton);
+        preferencesButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                Fragment prefFragment = new PreferencesFragment();
+                FragmentTransaction fragTransac = getSupportFragmentManager().beginTransaction();
+                fragTransac.replace(R.id.preferencesFragmentContainer, prefFragment)
+                        .addToBackStack(null)
+                        .commit();
+
+                findViewById(R.id.transparentOverlay).setClickable(true);
+                Log.d("ViewMapActivity","map disabled");
+            }
+        });
     }
 
+    @Override
+    public void onBackPressed(){
+        if(findViewById(R.id.transparentOverlay).isClickable()){
+            findViewById(R.id.transparentOverlay).setClickable(false);
+        }
+        super.onBackPressed();
+    }
 
+    
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -62,7 +90,6 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
         Predicate<StudySpace> canDiscuss = ss -> ss.isDiscussion();
 
         Predicate<StudySpace> criteria = ss -> true;
-
 
     }
 }

@@ -7,11 +7,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class FilterFragment extends Fragment {
+public class PreferencesFragment extends Fragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
     }
 
     @Override
@@ -19,4 +21,5 @@ public class FilterFragment extends Fragment {
 
         return inflater.inflate(R.layout.map_filter_fragment, container, false);
     }
+
 }

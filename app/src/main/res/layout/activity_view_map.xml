@@ -6,9 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".ViewMapActivity" >
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    <fragment
     xmlns:map="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/map"
     android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
@@ -17,14 +16,37 @@
     android:layout_alignParentTop="true"
     tools:context=".ViewMapActivity" />
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/filter"
-        android:name="com.example.quekyufei.studyspaces.FilterFragment"
+    <FrameLayout
+        android:id="@+id/preferencesFragmentContainer"
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        tools:context=".FilterFragment" />
+        android:clickable="false"/>
+
+    <Button
+        android:id="@+id/preferencesButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:text="Preferences" />
+
+    <FrameLayout
+        android:id="@+id/transparentOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="150dp"
+        android:clickable="false"/>
+
+    <!--<fragment-->
+        <!--android:id="@+id/filter"-->
+        <!--android:name="com.example.quekyufei.studyspaces.PreferencesFragment"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="150dp"-->
+        <!--android:layout_alignParentStart="true"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--tools:context=".PreferencesFragment"/>-->
 
 </RelativeLayout>
