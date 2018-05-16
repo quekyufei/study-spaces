@@ -27,6 +27,8 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
     private PreferencesFragment prefFragment;
     private List<StudySpace> spaceList;
 
+    private boolean[] filterCriteria = new boolean[5];
+
     private Predicate<StudySpace> hasWifi = ss -> ss.isWifi();
     private Predicate<StudySpace> hasAircon = ss -> ss.isAircon();
     private Predicate<StudySpace> hasPower = ss -> ss.isPower();
@@ -42,11 +44,18 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        for (boolean b : filterCriteria){
+            b = false;
+        }
+
         Button preferencesButton = findViewById(R.id.preferencesButton);
         preferencesButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+                Bundle b = new Bundle();
+                b.putBooleanArray("filterCriteria", filterCriteria);
                 prefFragment = new PreferencesFragment();
+                prefFragment.setArguments(b);
                 FragmentTransaction fragTransac = getSupportFragmentManager().beginTransaction();
                 fragTransac.replace(R.id.preferencesFragmentContainer, prefFragment)
                         .addToBackStack(null)
@@ -56,24 +65,24 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
                 Log.d("ViewMapActivity","map disabled");
             }
         });
+
+
     }
 
     @Override
     public void onBackPressed(){
-        if(findViewById(R.id.transparentOverlay).isClickable()){
-            findViewById(R.id.transparentOverlay).setClickable(false);
-        }
+        turnOffTransparentOverlay();
         super.onBackPressed();
     }
 
     @Override
     public void filtersUpdated(){
         Predicate<StudySpace> criteria = ss -> true;
-        if(prefFragment.wifi) criteria = criteria.and(hasWifi);
-        if(prefFragment.aircon) criteria = criteria.and(hasAircon);
-        if(prefFragment.power) criteria = criteria.and(hasPower);
-        if(prefFragment.food) criteria = criteria.and(hasFood);
-        if(prefFragment.discussion) criteria = criteria.and(canDiscuss);
+        if(prefFragment.mcriteria[0]) criteria = criteria.and(hasWifi);
+        if(prefFragment.mcriteria[1]) criteria = criteria.and(hasAircon);
+        if(prefFragment.mcriteria[2]) criteria = criteria.and(hasPower);
+        if(prefFragment.mcriteria[3]) criteria = criteria.and(hasFood);
+        if(prefFragment.mcriteria[4]) criteria = criteria.and(canDiscuss);
 
         for(StudySpace ss : spaceList){
             if(!criteria.test(ss)){
@@ -88,6 +97,15 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
                 }
             }
         }
+    }
+
+    @Override
+    public void filtersDone(){
+        for(int i = 0; i < 5; i ++){
+            filterCriteria[i] = prefFragment.mcriteria[i];
+        }
+        getSupportFragmentManager().popBackStack();
+        turnOffTransparentOverlay();
     }
 
     /**
@@ -115,6 +133,12 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
             LatLng position = new LatLng(space.getLatitude(),space.getLongitude());
             Marker m = mMap.addMarker(new MarkerOptions().position(position).title(space.getName()));
             space.setMapsMarker(m);
+        }
+    }
+
+    private void turnOffTransparentOverlay(){
+        if(findViewById(R.id.transparentOverlay).isClickable()){
+            findViewById(R.id.transparentOverlay).setClickable(false);
         }
     }
 }

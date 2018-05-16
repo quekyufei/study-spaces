@@ -1,5 +1,6 @@
 package com.example.quekyufei.studyspaces;
 
 public interface FilterSpacesInterface {
-    public void filtersUpdated();
+    void filtersUpdated();
+    void filtersDone();
 }
