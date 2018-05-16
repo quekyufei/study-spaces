@@ -17,6 +17,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -26,11 +27,13 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
     private PreferencesFragment prefFragment;
     private List<StudySpace> spaceList;
 
-    private Predicate<StudySpace> hasWifi = ss -> ss.isWifi();
-    private Predicate<StudySpace> hasAircon = ss -> ss.isAircon();
-    private Predicate<StudySpace> hasPower = ss -> ss.isPower();
-    private Predicate<StudySpace> hasFood = ss -> ss.isFood();
-    private Predicate<StudySpace> canDiscuss = ss -> ss.isDiscussion();
+    private boolean[] filterCriteria = new boolean[5];
+
+    private Predicate<StudySpace> hasWifi = StudySpace::isWifi;
+    private Predicate<StudySpace> hasAircon = StudySpace::isAircon;
+    private Predicate<StudySpace> hasPower = StudySpace::isPower;
+    private Predicate<StudySpace> hasFood = StudySpace::isFood;
+    private Predicate<StudySpace> canDiscuss = StudySpace::isDiscussion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,11 +44,14 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        Arrays.fill(filterCriteria,false);
+
         Button preferencesButton = findViewById(R.id.preferencesButton);
-        preferencesButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
+        preferencesButton.setOnClickListener((View v)->{
+                Bundle b = new Bundle();
+                b.putBooleanArray("filterCriteria", filterCriteria);
                 prefFragment = new PreferencesFragment();
+                prefFragment.setArguments(b);
                 FragmentTransaction fragTransac = getSupportFragmentManager().beginTransaction();
                 fragTransac.replace(R.id.preferencesFragmentContainer, prefFragment)
                         .addToBackStack(null)
@@ -53,26 +59,25 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
 
                 findViewById(R.id.transparentOverlay).setClickable(true);
                 Log.d("ViewMapActivity","map disabled");
-            }
         });
+
+
     }
 
     @Override
     public void onBackPressed(){
-        if(findViewById(R.id.transparentOverlay).isClickable()){
-            findViewById(R.id.transparentOverlay).setClickable(false);
-        }
+        turnOffTransparentOverlay();
         super.onBackPressed();
     }
 
     @Override
     public void filtersUpdated(){
         Predicate<StudySpace> criteria = ss -> true;
-        if(prefFragment.wifi) criteria = criteria.and(hasWifi);
-        if(prefFragment.aircon) criteria = criteria.and(hasAircon);
-        if(prefFragment.power) criteria = criteria.and(hasPower);
-        if(prefFragment.food) criteria = criteria.and(hasFood);
-        if(prefFragment.discussion) criteria = criteria.and(canDiscuss);
+        if(prefFragment.mcriteria[0]) criteria = criteria.and(hasWifi);
+        if(prefFragment.mcriteria[1]) criteria = criteria.and(hasAircon);
+        if(prefFragment.mcriteria[2]) criteria = criteria.and(hasPower);
+        if(prefFragment.mcriteria[3]) criteria = criteria.and(hasFood);
+        if(prefFragment.mcriteria[4]) criteria = criteria.and(canDiscuss);
 
         for(StudySpace ss : spaceList){
             if(!criteria.test(ss)){
@@ -87,6 +92,13 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
                 }
             }
         }
+    }
+
+    @Override
+    public void filtersDone(){
+        System.arraycopy(prefFragment.mcriteria,0,filterCriteria,0,5);
+        getSupportFragmentManager().popBackStack();
+        turnOffTransparentOverlay();
     }
 
     /**
@@ -114,6 +126,12 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
             LatLng position = new LatLng(space.getLatitude(),space.getLongitude());
             Marker m = mMap.addMarker(new MarkerOptions().position(position).title(space.getName()));
             space.setMapsMarker(m);
+        }
+    }
+
+    private void turnOffTransparentOverlay(){
+        if(findViewById(R.id.transparentOverlay).isClickable()){
+            findViewById(R.id.transparentOverlay).setClickable(false);
         }
     }
 }
