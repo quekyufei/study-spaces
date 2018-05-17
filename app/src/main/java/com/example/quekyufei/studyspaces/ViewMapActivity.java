@@ -1,6 +1,5 @@
 package com.example.quekyufei.studyspaces;
 
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -10,6 +9,8 @@ import android.widget.Button;
 
 import com.example.quekyufei.studyspaces.database.DatabaseFactory;
 import com.example.quekyufei.studyspaces.database.DatabaseInterface;
+import com.example.quekyufei.studyspaces.popupinfo.PopUpData;
+import com.example.quekyufei.studyspaces.popupinfo.PopUpInfoAdapter;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -22,7 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallback, FilterSpacesInterface {
+public class ViewMapActivity extends FragmentActivity
+        implements OnMapReadyCallback, FilterSpacesInterface {
 
     private GoogleMap mMap;
     private PreferencesFragment prefFragment;
@@ -88,8 +90,8 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
                 }
             }else{
                 if(ss.getMapsMarker()==null){
-                    LatLng position = new LatLng(ss.getLatitude(),ss.getLongitude());
-                    ss.setMapsMarker(mMap.addMarker(new MarkerOptions().position(position).title(ss.getName())));
+                    Marker m = addMarker(ss);
+                    ss.setMapsMarker(m);
                 }
             }
         }
@@ -115,6 +117,8 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        mMap.setInfoWindowAdapter(new PopUpInfoAdapter(this));
+
         LatLng ntu = new LatLng(1.3483, 103.6831);
         mMap.addMarker(new MarkerOptions().position(ntu).title("Marker at NTU"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ntu,(float)15.2));
@@ -124,8 +128,8 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
         spaceList = db.getStudySpaces(getApplicationContext());
         for(StudySpace space : spaceList){
             Log.d("ViewMapActivity", "name: " + space.getName() + ", " + space.isAircon());
-            LatLng position = new LatLng(space.getLatitude(),space.getLongitude());
-            Marker m = mMap.addMarker(new MarkerOptions().position(position).title(space.getName()));
+
+            Marker m = addMarker(space);
             space.setMapsMarker(m);
         }
     }
@@ -135,4 +139,19 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
             findViewById(R.id.transparentOverlay).setClickable(false);
         }
     }
-}
+
+    private Marker addMarker(StudySpace space){
+        LatLng position = new LatLng(space.getLatitude(),space.getLongitude());
+        Marker m = mMap.addMarker(new MarkerOptions().position(position));
+
+        PopUpData data = new PopUpData();
+        data.setName(space.getName());
+        data.setLocation(space.getLocation());
+        data.setCapacity(space.getCapacity());
+        data.setNumberOfPeople(10);
+        data.setRating(3.5f);
+        m.setTag(data);
+
+        return m;
+    }
+}3
