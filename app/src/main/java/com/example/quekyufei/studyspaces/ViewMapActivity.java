@@ -155,4 +155,4 @@ public class ViewMapActivity extends FragmentActivity
 
         return m;
     }
-}3
+}

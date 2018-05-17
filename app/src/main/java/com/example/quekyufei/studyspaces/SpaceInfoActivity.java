@@ -8,6 +8,8 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.quekyufei.studyspaces.popupinfo.PopUpData;
+
 public class SpaceInfoActivity extends AppCompatActivity {
 
 
@@ -18,6 +20,10 @@ public class SpaceInfoActivity extends AppCompatActivity {
 
         Intent i = getIntent();
         StudySpace space = (StudySpace) i.getSerializableExtra("studyspace");
+
+        if (getIntent().hasExtra("key")) {
+            PopUpData data = (PopUpData) getIntent().getSerializableExtra("key");
+        }
 
         String name = space.getName();
         int capacity = space.getCapacity();

@@ -1,6 +1,8 @@
 package com.example.quekyufei.studyspaces.popupinfo;
 
-public class PopUpData {
+import java.io.Serializable;
+
+public class PopUpData implements Serializable {
     private String name;
     private String location;
     private int capacity;
