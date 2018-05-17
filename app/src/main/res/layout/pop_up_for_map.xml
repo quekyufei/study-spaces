@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id = "@+id/pop-up"
+    android:layout_width = "wrap_content"
+    android:layout_height = "match_parent"
+    android:layout_gravity = "center"
+    android:orientation = "vertical"
+    android:paddingLeft = "10dp"
+    android:paddingRight = "10dp">
+
+    <TextView
+        android:id = "@+id/name"
+        android:layout_height = "wrap_content"
+        android:layout_width = "wrap_content"
+        android:text = "Lee Wee Nam Library"
+        android:textSize = "17dp"
+        android:textStyle = "bold"
+        android:paddingTop = "5dp"/>
+
+    <TextView
+        android:id = "@+id/location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text = "NS 2.1.3"/>
+
+    <TextView
+        android:id = "@+id/capacity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text = "Capacity: 200/300"
+        />
+
+    <Button
+        android:id = "@+id/infoBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity = "center"
+        android:text = "More Info"
+        android:textSize = "10dp" />
+
+</LinearLayout>
+
