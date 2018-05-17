@@ -79,6 +79,7 @@ public class ViewMapActivity extends FragmentActivity implements OnMapReadyCallb
         if(prefFragment.mcriteria[3]) criteria = criteria.and(hasFood);
         if(prefFragment.mcriteria[4]) criteria = criteria.and(canDiscuss);
 
+
         for(StudySpace ss : spaceList){
             if(!criteria.test(ss)){
                 if(ss.getMapsMarker()!=null){
